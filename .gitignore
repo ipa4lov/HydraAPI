@@ -47,6 +47,8 @@ ies_parser/x64/
 hydra_api/.vs/
 main/data/textures_gen/
 main/x64/
+main/tests
+build
 PostProcessDLL/x64/
 PostProcessDLLExample/x64/
 mikktspace/x64/
