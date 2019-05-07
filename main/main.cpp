@@ -145,7 +145,7 @@ int main(int argc, const char** argv)
 	  //run_all_alg_tests();
 	  //run_all_ipp_tests();
 
-    test40_several_changes();
+    //test40_several_changes();
     //test44_four_lights_and_compressed_mesh();
     //test42_load_mesh_compressed();
     //test78_material_remap_list1();
@@ -171,7 +171,7 @@ int main(int argc, const char** argv)
     //_hrDebugPrintVSGF(L"/home/frol/temp/decompressed.vsgf",L"/home/frol/temp/decompressed.txt");
 
     //test82_proc_texture();
-    //test93_proc_tex_recursive();
+    test93_proc_tex_recursive();
     //test39_mmlt_or_ibpt();
     //test42_load_library_basic();
     //std::cout << test37_cornell_with_light_different_image_layers() << std::endl;

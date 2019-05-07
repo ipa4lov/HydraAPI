@@ -67,6 +67,16 @@ struct ChangeList
 
 void ScanXmlNodeRecursiveAndAppendTexture(pugi::xml_node a_node, std::unordered_set<int32_t>& a_outSet)
 {
+  if (!a_node.attribute(L"type").empty()) {
+    std::wstring ws = a_node.attribute(L"type").as_string();
+    std::string s( ws.begin(), ws.end() );
+
+    if (s == "inline_code") {
+      
+      int id = a_node.attribute(L"val").as_int();
+      a_outSet.insert(id);
+    }
+  }
   if (std::wstring(a_node.name()) == L"texture")
   {
     int32_t id = a_node.attribute(L"id").as_int();

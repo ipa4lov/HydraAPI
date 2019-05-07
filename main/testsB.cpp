@@ -915,7 +915,7 @@ bool test82_proc_texture()
   //
   HRRenderRef renderRef = hrRenderCreate(L"HydraModern"); // opengl1
   hrRenderEnableDevice(renderRef, CURR_RENDER_DEVICE, true);
-  hrRenderLogDir(renderRef, L"/home/frol/temp/", true);
+  hrRenderLogDir(renderRef, L"/home/ilia/temp/", true);
 
   hrRenderOpen(renderRef, HR_WRITE_DISCARD);
   {

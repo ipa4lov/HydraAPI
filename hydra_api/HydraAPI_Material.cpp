@@ -194,7 +194,8 @@ void ArgCheck(int a_matId, pugi::xml_node a_nodeDecl, pugi::xml_node a_nodeVal)
       HrPrint(HR_SEVERITY_ERROR, L"ArgCheck(matId = ", a_matId, "): decl. arg(", argDecl.first, "), name = '", argDecl.second.name.c_str(), "' is not set");
     else
     {
-      if(argDecl.second.type != p->second.type)
+      
+      if ((argDecl.second.type != p->second.type) && (p->second.type != L"inline_code"))
         HrPrint(HR_SEVERITY_ERROR, L"ArgCheck(matId = ", a_matId, "): wrong arg(",
                 argDecl.first, ") type; declared is '", argDecl.second.type.c_str(), "', actual is '", p->second.type.c_str(), "'");
   

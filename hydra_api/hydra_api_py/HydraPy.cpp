@@ -345,7 +345,7 @@ PYBIND11_MODULE(hydraPy, m)
   m.def("hrSceneLibraryInfo", &hrSceneLibraryInfo);
   m.def("hrSceneLibraryOpen", &hrSceneLibraryOpen);
   m.def("hrTexture2DCreateFromFile", &hrTexture2DCreateFromFile, py::arg("a_fileName"), py::arg("w") = -1, py::arg("h") = -1, py::arg("bpp") = -1);
-  m.def("hrTexture2DCreateFromFileDL", &hrTexture2DCreateFromFileDL, py::arg("a_fileName"),  py::arg("w") = -1, py::arg("h") = -1, py::arg("bpp") = -1);
+  m.def("hrTexture2DCreateFromFileDL", &hrTexture2DCreateFromFileDL, py::arg("a_fileName"),  py::arg("w") = -1, py::arg("h") = -1, py::arg("bpp") = -1, py::arg("a_copyFileToLocalData") = false);
   m.def("hrTexture2DUpdateFromFile", &hrTexture2DUpdateFromFile, py::arg("currentRef"), py::arg("a_fileName"), py::arg("w") = -1, py::arg("h") = -1, py::arg("bpp") = -1);
   //m.def("hrTexture2DCreateFromMemory", &hrTexture2DCreateFromMemory);
   //m.def("hrTexture2DUpdateFromMemory", &hrTexture2DUpdateFromMemory);

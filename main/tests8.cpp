@@ -1211,6 +1211,8 @@ bool test93_proc_tex_recursive()
   HRTextureNodeRef texBitmap2 = hrTexture2DCreateFromFile(L"data/textures/300px-Bump2.jpg");
   HRTextureNodeRef texProc    = hrTextureCreateAdvanced(L"proc", L"my_custom_tex");
   HRTextureNodeRef texProc2   = hrTextureCreateAdvanced(L"proc", L"my_custom_tex2");
+  HRTextureNodeRef mulTex = hrTextureCreateAdvanced(L"proc", L"mulTex");
+  HRTextureNodeRef checkTex = hrTextureCreateAdvanced(L"proc", L"checkTex");
 
   hrTextureNodeOpen(texProc, HR_WRITE_DISCARD);
   {
@@ -1232,6 +1234,25 @@ bool test93_proc_tex_recursive()
   }
   hrTextureNodeClose(texProc2);
 
+  hrTextureNodeOpen(mulTex, HR_WRITE_DISCARD);
+  {
+    xml_node texNode = hrTextureParamNode(mulTex);
+
+    xml_node code_node = texNode.append_child(L"code");
+    code_node.append_attribute(L"file") = L"data/code/multiply.c";
+    code_node.append_attribute(L"main") = L"main";
+  }
+  hrTextureNodeClose(mulTex);
+
+  hrTextureNodeOpen(checkTex, HR_WRITE_DISCARD);
+  {
+    xml_node texNode = hrTextureParamNode(checkTex);
+
+    xml_node code_node = texNode.append_child(L"code");
+    code_node.append_attribute(L"file") = L"data/code/checker.c";
+    code_node.append_attribute(L"main") = L"main";
+  }
+  hrTextureNodeClose(checkTex);
 
   // other as usual in this test
   //
@@ -1262,6 +1283,7 @@ bool test93_proc_tex_recursive()
 
       colorNode.append_attribute(L"val") = L"0.5 0.5 0.5";
 
+      //auto texNode = hrTextureBind(texProc2, colorNode);
       auto texNode = hrTextureBind(texBitmap1, colorNode);
 
       texNode.append_attribute(L"matrix");
@@ -1322,29 +1344,30 @@ bool test93_proc_tex_recursive()
     p1.append_attribute(L"val")  = L"1 1 1 1";
 
     // new: with recursive proc texture
-    // xml_node p1 = texNode.append_child(L"arg");
-    // {
-    //   p1.append_attribute(L"id") = 0;
-    //   p1.append_attribute(L"name") = L"inColor";
-    //   p1.append_attribute(L"type") = L"inline_code"; // mark that we want to inline some proc texture (texProc2) as input for texProc
-    //   p1.append_attribute(L"size") = 1;
-    //   p1.append_attribute(L"val")  = texProc2.id;    // here we show what texture should be inlined (texProc2)
-    //
-    //   // if child texture has parameters (they usually have , texProc2 in this example don't have):
-    //   xml_node p11 = p1.append_child(L"arg");
-    //   {
-    //     p11.append_attribute(L"id") = 0;
-    //     p11.append_attribute(L"name") = L"inColor";
-    //     p11.append_attribute(L"type") = L"float4";
-    //     p11.append_attribute(L"size") = 1;
-    //     p11.append_attribute(L"val")  = L"1 1 1 1";
-    //   }
-    //
-    //   // xml_node p12 = p1.append_child(L"arg");
-    //   // ...
-    // }
-    //
-    // // it is assmumed that API will generate inlined C code in folder 'data' when material will be closed.
+    /*xml_node p1 = texNode.append_child(L"arg");
+    {
+     p1.append_attribute(L"id") = 0;
+     p1.append_attribute(L"name") = L"inColor";
+     p1.append_attribute(L"type") = L"inline_code"; // mark that we want to inline some proc texture (texProc2) as input for texProc
+     p1.append_attribute(L"ret_cnt") = 4;
+     p1.append_attribute(L"size") = 1;
+     p1.append_attribute(L"val")  = texProc2.id;    // here we show what texture should be inlined (texProc2)
+    }*/
+    /*
+      // if child texture has parameters (they usually have , texProc2 in this example don't have):
+    xml_node p11 = p1.append_child(L"arg");
+    {
+      p11.append_attribute(L"id") = 0;
+      p11.append_attribute(L"name") = L"inColor";
+      p11.append_attribute(L"type") = L"float4";
+      p11.append_attribute(L"size") = 1;
+      p11.append_attribute(L"val")  = L"1 1 1 1";
+    }
+      // xml_node p12 = p1.append_child(L"arg");
+      // ...
+  }*/
+    
+     // it is assmumed that API will generate inlined C code in folder 'data' when material will be closed.
     // // in the same way as it fix code for common procedural textures
 
   }
@@ -1356,7 +1379,73 @@ bool test93_proc_tex_recursive()
     xml_node diff = matNode.append_child(L"diffuse");
 
     diff.append_attribute(L"brdf_type").set_value(L"lambert");
-    diff.append_child(L"color").append_attribute(L"val").set_value(L"0.0 0.5 0.0");
+    
+    auto colorNode = diff.append_child(L"color");
+    colorNode.append_attribute(L"val") = L"0.5 0.0 0.0";
+    colorNode.append_attribute(L"tex_apply_mode") = L"replace";
+    
+    auto texNode = hrTextureBind(mulTex, colorNode);
+    // not used currently
+    //
+    texNode.append_attribute(L"matrix");
+    float samplerMatrix[16] = { 1, 0, 0, 0,
+                                0, 1, 0, 0,
+                                0, 0, 1, 0,
+                                0, 0, 0, 1 };
+
+    texNode.append_attribute(L"addressing_mode_u").set_value(L"wrap");
+    texNode.append_attribute(L"addressing_mode_v").set_value(L"wrap");
+    texNode.append_attribute(L"input_gamma").set_value(2.2f);
+    texNode.append_attribute(L"input_alpha").set_value(L"rgb");
+
+    HydraXMLHelpers::WriteMatrix4x4(texNode, L"matrix", samplerMatrix);
+
+    /*xml_node p1 = texNode.append_child(L"arg");
+    {
+     p1.append_attribute(L"id") = 0;
+     p1.append_attribute(L"name") = L"inColor";
+     p1.append_attribute(L"type") = L"inline_code"; // mark that we want to inline some proc texture (texProc2) as input for texProc
+     p1.append_attribute(L"ret_cnt") = 4;
+     p1.append_attribute(L"size") = 1;
+     p1.append_attribute(L"val")  = .id;    // here we show what texture should be inlined (texProc2)
+    }*/
+    
+    xml_node p1 = texNode.append_child(L"arg");
+    {
+      p1.append_attribute(L"id") = 0;
+      p1.append_attribute(L"name") = L"a";
+      p1.append_attribute(L"type") = L"inline_code";
+      p1.append_attribute(L"ret_cnt") = 4;
+      p1.append_attribute(L"size") = 1;
+      p1.append_attribute(L"val")  = checkTex.id;
+    }
+    xml_node p2 = texNode.append_child(L"arg");
+    {
+      p2.append_attribute(L"id") = 1;
+      p2.append_attribute(L"name") = L"b";
+      p2.append_attribute(L"type") = L"inline_code";
+      p2.append_attribute(L"ret_cnt") = 4;
+      p2.append_attribute(L"size") = 1;
+      p2.append_attribute(L"val")  = texProc.id;
+    }
+    xml_node p21 = p2.append_child(L"arg");
+    {
+      p21.append_attribute(L"id") = 0;
+      p21.append_attribute(L"name") = L"inColor";
+      p21.append_attribute(L"type") = L"inline_code";
+      p21.append_attribute(L"ret_cnt") = 4;
+      p21.append_attribute(L"size") = 1;
+      p21.append_attribute(L"val")  = texProc2.id;
+    }
+
+    xml_node p11 = p1.append_child(L"arg");
+    {
+      p11.append_attribute(L"id") = 0;
+      p11.append_attribute(L"name") = L"color";
+      p11.append_attribute(L"type") = L"float4";
+      p11.append_attribute(L"size") = 1;
+      p11.append_attribute(L"val")  = L"1 1 1 1";
+    }
   }
   hrMaterialClose(mat2);
 
@@ -1459,7 +1548,7 @@ bool test93_proc_tex_recursive()
   //
   HRRenderRef renderRef = hrRenderCreate(L"HydraModern"); // opengl1
   hrRenderEnableDevice(renderRef, CURR_RENDER_DEVICE, true);
-  hrRenderLogDir(renderRef, L"/home/frol/temp/", true);
+  hrRenderLogDir(renderRef, L"/home/ilia/temp/", true);
 
   hrRenderOpen(renderRef, HR_WRITE_DISCARD);
   {
